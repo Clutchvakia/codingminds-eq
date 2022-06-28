@@ -1,5 +1,7 @@
 import 'package:equalizer/equalizer.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter_xlider/flutter_xlider.dart';
 
 class customeq extends StatefulWidget {
   const customeq({Key? key,
@@ -23,6 +25,7 @@ class _customeqState extends State<customeq> {
   }
   @override
   Widget build(BuildContext context) {
+    int bandLevel = 0;
     return FutureBuilder<List<int>>(
       future: Equalizer.getCenterBandFreqs(),
       builder: (context, snapshot) {
@@ -32,12 +35,39 @@ class _customeqState extends State<customeq> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: snapshot.data!.map(
-                        (freq) => Container().toList();
-                    ),
-                  ),
+                        (freq) => buildSlider(freq, bandLevel++),
+                    ).toList(),
+                  )
                 ],
-              ),
+              ) : const CircularProgressIndicator();
         }
+    );
+  }
+
+  Widget buildSlider(int freq, int bandLevel) {
+    return Column(
+      children: [
+        SizedBox(
+          height: 250.0,
+          child: FutureBuilder<int>(
+            future: Equalizer.getBandLevel(bandLevel),
+            builder: (context, snapshot) {
+              return FlutterSlider(
+                disabled: !widget.enabled,
+                axis : Axis.vertical,
+                rtl : true,
+                min : min,
+                max : max,
+                values: [snapshot.hasData ? snapshot.data!.toDouble() : 0],
+                onDragCompleted: (handler, lower, upper) {
+                  Equalizer.setBandLevel(bandLevel, lower.toInt());
+                },
+              );
+            }
+          )
+        ),
+        Text('${freq ~/ 1000} Hz')
+      ],
     );
   }
 }

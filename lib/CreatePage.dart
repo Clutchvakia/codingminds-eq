@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:equalizer/equalizer.dart';
+import 'package:testdemo/customeq.dart';
 
 class CreatePage extends StatefulWidget {
   const CreatePage({Key? key}) : super(key: key);
@@ -75,6 +76,14 @@ class _CreatePageState extends State<CreatePage> {
                               child: Text('EQ 1: Edit'),
                             )
                           ),
+                          FutureBuilder<List<int>>(
+                            future: Equalizer.getBandLevelRange(),
+                            builder: (context, snapshot) {
+                              return snapshot.connectionState == ConnectionState.done ?
+                                  customeq(enabled: enableCustomEQ, bandLevelRange: snapshot.data) :
+                                  circularProgressionIndicator();
+                            }
+                          )
                         ),
                       ],
                     ),
